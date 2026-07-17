@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "langgraph-tool-agent"
+version = "0.1.0"
+description = "Stateful LangGraph agent with safe tools and human approval."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "fastapi>=0.111",
+  "httpx[socks]>=0.27",
+  "langchain-core>=0.3",
+  "langchain-groq>=0.2",
+  "langgraph>=0.2",
+  "pandas>=2.0",
+  "pydantic>=2.7",
+  "uvicorn[standard]>=0.29",
+]
+
+[project.optional-dependencies]
+dev = ["httpx>=0.27", "pytest>=8", "pytest-cov>=5", "ruff>=0.6"]
+
+[project.scripts]
+langgraph-tool-agent = "tool_agent.main:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tool_agent"]
+artifacts = ["src/tool_agent/static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
