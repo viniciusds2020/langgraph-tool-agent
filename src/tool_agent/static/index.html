@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LangGraph Tool Agent</title><link rel="stylesheet" href="/assets/styles.css"></head>
+<body>
+<aside><div class="brand"><span>LG</span><div>Tool Agent<small>LANGGRAPH CONTROL</small></div></div>
+<nav><button class="active" data-view="agent">Agente</button><button data-view="datasets">Datasets</button><button data-view="runs">Execuções</button><button data-view="graph">Arquitetura</button></nav>
+<div class="runtime"><i></i><div><b id="runtime-label">Simulation</b><small id="model-label">Loading...</small></div></div></aside>
+<main>
+<header><div><p class="kicker">STATEFUL PROBLEM SOLVER</p><h1 id="page-title">Agente</h1></div><span class="thread" id="thread-label">Nova thread</span></header>
+
+<section class="view active" id="agent"><div class="hero"><div><span class="pill">LANGGRAPH + TOOLS</span><h2>Pense em objetivos.<br><em>Execute com controle.</em></h2><p>Um agente que seleciona ferramentas, observa evidências, corrige a rota e pede aprovação antes de acessar fontes governadas.</p></div><div class="mini-graph"><b>Agent</b><i></i><b>Tools</b><i></i><b>Review</b></div></div>
+<div class="workspace"><article class="composer"><div class="examples"><button>Calcule 128 * 37</button><button>Qual a data e hora de hoje?</button><button>Analise o dataset #1</button><button>Busque práticas de aprovação humana</button></div><textarea id="question" placeholder="Descreva um problema para o agente resolver..."></textarea><footer><label><input type="checkbox" id="live"> Usar Groq ao vivo</label><button class="primary" id="run-agent">Executar agente →</button></footer></article>
+<article class="result"><div class="result-head"><div><span class="pulse"></span><b>Traço operacional</b></div><span id="metrics">0 tokens</span></div><div id="trace"><div class="empty">O plano, as ferramentas chamadas e as observações aparecerão aqui.</div></div><div id="answer"></div><div id="approval"></div></article></div></section>
+
+<section class="view" id="datasets"><div class="intro"><div><p class="kicker">FERRAMENTA CSV</p><h2>Datasets disponíveis</h2><p>Cadastre um CSV e peça ao agente para analisar o ID gerado.</p></div><button class="primary" id="open-dataset">+ Novo dataset</button></div><div class="cards" id="dataset-list"></div></section>
+
+<section class="view" id="runs"><div class="intro"><div><p class="kicker">OBSERVABILIDADE</p><h2>Histórico de execuções</h2></div><button class="ghost" id="refresh-runs">Atualizar</button></div><div class="table"><div class="thead"><span>Status</span><span>Pergunta</span><span>Modo</span><span>Latência</span><span>Tokens</span></div><div id="run-list"></div></div></section>
+
+<section class="view" id="graph"><div class="intro"><div><p class="kicker">ARQUITETURA</p><h2>Grafo controlável e persistente</h2><p>O LLM decide qual ferramenta usar, mas políticas determinísticas controlam a execução.</p></div></div><div class="architecture"><div class="arch-node start">Pergunta</div><span>→</span><div class="arch-node agent-node">Agent</div><span>→</span><div class="arch-node decision">Tool calls?</div><span>→</span><div class="arch-node tool-node">Safe tools</div><span>↺</span><div class="arch-node end">Resposta</div></div><div class="principles"><article><b>Estado</b><p>Mensagens, iterações e rastros vivem no estado tipado do grafo.</p></article><article><b>Checkpoint</b><p>Cada thread pode pausar e continuar do mesmo ponto.</p></article><article><b>Guardrails</b><p>Allowlist, SQL somente leitura, cálculo via AST e limites explícitos.</p></article><article><b>Human-in-the-loop</b><p>Ferramentas governadas usam interrupt antes da execução.</p></article></div></section>
+</main>
+<dialog id="dataset-dialog"><form id="dataset-form"><div class="dialog-head"><div><small>NOVO DATASET</small><h2>Cadastrar CSV</h2></div><button type="button" class="close">×</button></div><label>Nome<input name="name" required minlength="2" placeholder="vendas_teste.csv"></label><label>Conteúdo CSV<textarea name="csv_content" required placeholder="id,valor,categoria&#10;1,120,A&#10;2,90,B"></textarea></label><footer><button type="button" class="ghost close">Cancelar</button><button class="primary">Cadastrar</button></footer></form></dialog>
+<div id="toast"></div><script src="/assets/app.js"></script></body></html>
+
