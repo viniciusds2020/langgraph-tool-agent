@@ -1,0 +1,14 @@
+services:
+  agent:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_PATH: /app/data/tool_agent.db
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    volumes:
+      - agent-data:/app/data
+    restart: unless-stopped
+volumes:
+  agent-data:
+
