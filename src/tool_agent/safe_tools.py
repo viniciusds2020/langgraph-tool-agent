@@ -98,16 +98,20 @@ def sqlite_read_query(query: str) -> str:
     if ";" in normalized:
         raise ValueError("Multiple statements are not permitted.")
 
+    allowed_functions = {
+        "count", "min", "max", "avg", "sum", "abs",
+        "round", "coalesce", "lower", "upper",
+    }
+
     def authorize(action, arg1, arg2, database, trigger):
         if action == sqlite3.SQLITE_SELECT:
             return sqlite3.SQLITE_OK
         if action == sqlite3.SQLITE_READ:
-            return (sqlite3.SQLITE_OK if arg1 == "business_metrics"
-                    else sqlite3.SQLITE_DENY)
+            return sqlite3.SQLITE_OK if arg1 == "business_metrics" else sqlite3.SQLITE_DENY
         if action == sqlite3.SQLITE_FUNCTION:
-            return (sqlite3.SQLITE_OK if (arg2 or "").lower() in
-                    {"count", "min", "max", "avg", "sum", "abs",\n                     "round", "coalesce", "lower", "upper"}
-                    else sqlite3.SQLITE_DENY)
+            if (arg2 or "").lower() in allowed_functions:
+                return sqlite3.SQLITE_OK
+            return sqlite3.SQLITE_DENY
         return sqlite3.SQLITE_DENY
 
     with connection() as db:
