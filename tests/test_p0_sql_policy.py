@@ -1,4 +1,5 @@
 import pytest
+
 from tool_agent.database import initialize
 from tool_agent.safe_tools import sqlite_read_query
 
@@ -16,4 +17,5 @@ def test_rejects_join_to_unapproved_table(db):
         sqlite_read_query("SELECT b.month FROM business_metrics b JOIN datasets d ON 1=1")
 
 def test_allows_parameter_free_safe_projection(db):
-    assert "2026-01" in sqlite_read_query("SELECT month, revenue FROM business_metrics ORDER BY month")
+    result = sqlite_read_query("SELECT month, revenue FROM business_metrics ORDER BY month")
+    assert "2026-01" in result
