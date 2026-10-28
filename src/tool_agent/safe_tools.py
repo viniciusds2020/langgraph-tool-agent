@@ -106,7 +106,7 @@ def sqlite_read_query(query: str) -> str:
                     else sqlite3.SQLITE_DENY)
         if action == sqlite3.SQLITE_FUNCTION:
             return (sqlite3.SQLITE_OK if (arg2 or "").lower() in
-                    {"count", "min", "max", "avg", "sum", "abs", "round", "coalesce", "lower", "upper"}
+                    {"count", "min", "max", "avg", "sum", "abs",\n                     "round", "coalesce", "lower", "upper"}
                     else sqlite3.SQLITE_DENY)
         return sqlite3.SQLITE_DENY
 
