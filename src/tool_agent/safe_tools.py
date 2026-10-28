@@ -6,6 +6,7 @@ import json
 import math
 import operator
 import re
+import sqlite3
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -86,17 +87,41 @@ def profile_csv(dataset_id: int) -> str:
 
 
 def sqlite_read_query(query: str) -> str:
-    normalized = re.sub(r"\s+", " ", query.strip()).lower()
-    forbidden = (";", "--", "/*", "pragma", "attach", "insert", "update", "delete",
-                 "drop", "alter", "create", "replace")
-    if not normalized.startswith("select ") or any(token in normalized for token in forbidden):
-        raise ValueError("Only one read-only SELECT is allowed.")
-    if "business_metrics" not in normalized:
-        raise ValueError("Only the business_metrics table is available.")
+    """Run a bounded read against the only approved table.
+
+    SQLite's authorizer enforces table access at prepare time, including
+    nested queries and joins; textual allowlists alone are insufficient.
+    """
+    normalized = query.strip()
+    if len(normalized) > 3000 or not re.match(r"^select\\s", normalized, re.I):
+        raise ValueError("Only bounded SELECT queries are allowed.")
+    if ";" in normalized:
+        raise ValueError("Multiple statements are not permitted.")
+
+    def authorize(action, arg1, arg2, database, trigger):
+        if action == sqlite3.SQLITE_SELECT:
+            return sqlite3.SQLITE_OK
+        if action == sqlite3.SQLITE_READ:
+            return (sqlite3.SQLITE_OK if arg1 == "business_metrics"
+                    else sqlite3.SQLITE_DENY)
+        if action == sqlite3.SQLITE_FUNCTION:
+            return (sqlite3.SQLITE_OK if (arg2 or "").lower() in
+                    {"count", "min", "max", "avg", "sum", "abs", "round", "coalesce", "lower", "upper"}
+                    else sqlite3.SQLITE_DENY)
+        return sqlite3.SQLITE_DENY
+
     with connection() as db:
-        cursor = db.execute(query)
-        rows = cursor.fetchmany(100)
-        columns = [item[0] for item in cursor.description]
+        db.set_authorizer(authorize)
+        db.set_progress_handler(lambda: 1, 100000)
+        try:
+            cursor = db.execute(normalized)
+            rows = cursor.fetchmany(100)
+            columns = [item[0] for item in cursor.description]
+        except sqlite3.DatabaseError as exc:
+            raise ValueError("Query rejected by read-only access policy.") from exc
+        finally:
+            db.set_authorizer(None)
+            db.set_progress_handler(None, 0)
     return json.dumps([dict(zip(columns, row, strict=True)) for row in rows], ensure_ascii=False)
 
 
