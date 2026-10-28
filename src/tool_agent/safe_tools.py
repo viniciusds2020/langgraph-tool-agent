@@ -93,7 +93,7 @@ def sqlite_read_query(query: str) -> str:
     nested queries and joins; textual allowlists alone are insufficient.
     """
     normalized = query.strip()
-    if len(normalized) > 3000 or not re.match(r"^select\\s", normalized, re.I):
+    if len(normalized) > 3000 or not re.match(r"^select\s", normalized, re.I):
         raise ValueError("Only bounded SELECT queries are allowed.")
     if ";" in normalized:
         raise ValueError("Multiple statements are not permitted.")
