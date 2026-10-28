@@ -3,6 +3,7 @@ import pytest
 from tool_agent.database import initialize
 from tool_agent.safe_tools import sqlite_read_query
 
+
 @pytest.fixture
 def db(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_PATH", str(tmp_path / "tools.db"))
